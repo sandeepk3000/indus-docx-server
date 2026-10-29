@@ -1,0 +1,407 @@
+[
+  {
+    "id": "table.learning_modules",
+    "label": "Create table \"learning_modules\"",
+    "summary": "Creates table \"learning_modules\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "learning_modules"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"learning_modules\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"learning_modules\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"learning_modules\"",
+        "sql": "CREATE TABLE \"public\".\"learning_modules\" (\n  \"course_id\" text NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"description\" text,\n  \"id\" text NOT NULL,\n  \"position\" int4 DEFAULT 0 NOT NULL,\n  \"title\" text NOT NULL,\n  \"updated_at\" timestamptz DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"learning_modules\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"learning_modules\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.lessons",
+    "label": "Create table \"lessons\"",
+    "summary": "Creates table \"lessons\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "lessons"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"lessons\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessons\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"lessons\"",
+        "sql": "CREATE TABLE \"public\".\"lessons\" (\n  \"content\" text,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"duration_sec\" int4,\n  \"id\" text NOT NULL,\n  \"module_id\" text NOT NULL,\n  \"position\" int4 DEFAULT 0 NOT NULL,\n  \"status\" text DEFAULT 'DRAFT' NOT NULL,\n  \"title\" text NOT NULL,\n  \"updated_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"video_url\" text,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"lessons_status_check_bc64f66b\" CHECK (\"status\" IN ('DRAFT', 'PUBLISHED', 'ARCHIVED'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"lessons\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessons\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.learning_modules.learning_modules_course_id_position_key",
+    "label": "Add unique constraint on \"learning_modules\" (course_id, position)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "learning_modules_course_id_position_key",
+        "table": "learning_modules"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"learning_modules_course_id_position_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "learning_modules_course_id_position_key",
+          "public",
+          "\"public\".\"learning_modules\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"learning_modules_course_id_position_key\"",
+        "sql": "ALTER TABLE \"public\".\"learning_modules\" ADD CONSTRAINT \"learning_modules_course_id_position_key\" UNIQUE (\"course_id\", \"position\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"learning_modules_course_id_position_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "learning_modules_course_id_position_key",
+          "public",
+          "\"public\".\"learning_modules\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.lessons.lessons_module_id_position_key",
+    "label": "Add unique constraint on \"lessons\" (module_id, position)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "lessons_module_id_position_key",
+        "table": "lessons"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"lessons_module_id_position_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessons_module_id_position_key",
+          "public",
+          "\"public\".\"lessons\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"lessons_module_id_position_key\"",
+        "sql": "ALTER TABLE \"public\".\"lessons\" ADD CONSTRAINT \"lessons_module_id_position_key\" UNIQUE (\"module_id\", \"position\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"lessons_module_id_position_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessons_module_id_position_key",
+          "public",
+          "\"public\".\"lessons\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.learning_modules.learning_modules_course_id_idx_297aaf4e",
+    "label": "Create index \"learning_modules_course_id_idx_297aaf4e\" on \"learning_modules\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "learning_modules_course_id_idx_297aaf4e",
+        "table": "learning_modules"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"learning_modules_course_id_idx_297aaf4e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"learning_modules_course_id_idx_297aaf4e\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"learning_modules_course_id_idx_297aaf4e\"",
+        "sql": "CREATE INDEX \"learning_modules_course_id_idx_297aaf4e\" ON \"public\".\"learning_modules\" (\"course_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"learning_modules_course_id_idx_297aaf4e\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"learning_modules_course_id_idx_297aaf4e\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.lessons.lessons_module_id_idx_7703a5b3",
+    "label": "Create index \"lessons_module_id_idx_7703a5b3\" on \"lessons\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "lessons_module_id_idx_7703a5b3",
+        "table": "lessons"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"lessons_module_id_idx_7703a5b3\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessons_module_id_idx_7703a5b3\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"lessons_module_id_idx_7703a5b3\"",
+        "sql": "CREATE INDEX \"lessons_module_id_idx_7703a5b3\" ON \"public\".\"lessons\" (\"module_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"lessons_module_id_idx_7703a5b3\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessons_module_id_idx_7703a5b3\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.lessons.lessons_module_id_status_idx_0c94add0",
+    "label": "Create index \"lessons_module_id_status_idx_0c94add0\" on \"lessons\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "lessons_module_id_status_idx_0c94add0",
+        "table": "lessons"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"lessons_module_id_status_idx_0c94add0\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessons_module_id_status_idx_0c94add0\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"lessons_module_id_status_idx_0c94add0\"",
+        "sql": "CREATE INDEX \"lessons_module_id_status_idx_0c94add0\" ON \"public\".\"lessons\" (\"module_id\", \"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"lessons_module_id_status_idx_0c94add0\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lessons_module_id_status_idx_0c94add0\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.courses.courses_created_by_id_fkey",
+    "label": "Add foreign key \"courses_created_by_id_fkey\" on \"courses\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "courses_created_by_id_fkey",
+        "table": "courses"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"courses_created_by_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "courses_created_by_id_fkey",
+          "public",
+          "\"public\".\"courses\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"courses_created_by_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"courses\"\nADD CONSTRAINT \"courses_created_by_id_fkey\"\nFOREIGN KEY (\"created_by_id\")\nREFERENCES \"public\".\"users\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"courses_created_by_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "courses_created_by_id_fkey",
+          "public",
+          "\"public\".\"courses\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.learning_modules.learning_modules_course_id_fkey",
+    "label": "Add foreign key \"learning_modules_course_id_fkey\" on \"learning_modules\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "learning_modules_course_id_fkey",
+        "table": "learning_modules"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"learning_modules_course_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "learning_modules_course_id_fkey",
+          "public",
+          "\"public\".\"learning_modules\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"learning_modules_course_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"learning_modules\"\nADD CONSTRAINT \"learning_modules_course_id_fkey\"\nFOREIGN KEY (\"course_id\")\nREFERENCES \"public\".\"courses\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"learning_modules_course_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "learning_modules_course_id_fkey",
+          "public",
+          "\"public\".\"learning_modules\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.lessons.lessons_module_id_fkey",
+    "label": "Add foreign key \"lessons_module_id_fkey\" on \"lessons\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "lessons_module_id_fkey",
+        "table": "lessons"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"lessons_module_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessons_module_id_fkey",
+          "public",
+          "\"public\".\"lessons\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"lessons_module_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"lessons\"\nADD CONSTRAINT \"lessons_module_id_fkey\"\nFOREIGN KEY (\"module_id\")\nREFERENCES \"public\".\"learning_modules\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"lessons_module_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lessons_module_id_fkey",
+          "public",
+          "\"public\".\"lessons\""
+        ]
+      }
+    ]
+  }
+]

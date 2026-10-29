@@ -1,0 +1,90 @@
+// use prisma-8
+enum Role {
+  ADMIN
+  INSTRUCTOR
+  STUDENT
+}
+
+model User {
+  id           Uuid      @id
+  name         String
+  email        String    @unique
+  refreshToken String?    @unique
+  imageUrl     String?   @map("image_url")
+  isActive     Boolean   @default(true) @map("is_active")
+
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @default(now()) @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+  role         Role      @default(STUDENT)
+  courses      Course[]
+
+  @@map("users")
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Course {
+  id           Uuid             @id
+  title        String
+  slug         String           @unique
+  description  String?
+  thumbnailUrl String?          @map("thumbnail_url")
+  level        CourseLevel      @default(BEGINNER)
+  status       PublishStatus    @default(DRAFT)
+  createdById  Uuid             @map("created_by_id")
+  publishedAt  DateTime?        @map("published_at")
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @default(now()) @map("updated_at")
+  deletedAt    DateTime?        @map("deleted_at")
+  user         User             @relation(fields: [createdById], references: [id])
+  modules      LearningModule[]
+
+  @@index([createdById])
+  @@index([status, deletedAt])
+  @@index([createdAt])
+  @@map("courses")
+}
+
+model LearningModule {
+  id          Uuid     @id
+  courseId    Uuid     @map("course_id")
+  title       String
+  description String?
+  position    Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @map("updated_at")
+  course      Course   @relation(fields: [courseId], references: [id])
+  lessons     Lesson[]
+
+  @@unique([courseId, position])
+  @@map("learning_modules")
+}
+
+model Lesson {
+  id          Uuid           @id
+  moduleId    Uuid           @map("module_id")
+  title       String
+  content     String?
+  videoUrl    String?        @map("video_url")
+  position    Int            @default(0)
+  status      PublishStatus  @default(DRAFT)
+  durationSec Int?           @map("duration_sec")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @default(now()) @map("updated_at")
+  module      LearningModule @relation(fields: [moduleId], references: [id])
+
+  @@unique([moduleId, position])
+  @@index([moduleId, status])
+  @@map("lessons")
+}

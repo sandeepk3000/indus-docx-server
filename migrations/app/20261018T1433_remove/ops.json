@@ -1,0 +1,86 @@
+[
+  {
+    "id": "dropColumn.User.age",
+    "label": "Drop column \"age\" from \"User\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "age",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"age\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "age"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"age\"",
+        "sql": "ALTER TABLE \"public\".\"User\" DROP COLUMN \"age\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"age\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "age"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.User.coverImage",
+    "label": "Drop column \"coverImage\" from \"User\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "coverImage",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"coverImage\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "coverImage"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"coverImage\"",
+        "sql": "ALTER TABLE \"public\".\"User\" DROP COLUMN \"coverImage\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"coverImage\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "coverImage"
+        ]
+      }
+    ]
+  }
+]

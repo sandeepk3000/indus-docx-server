@@ -1,0 +1,200 @@
+[
+  {
+    "id": "table.courses",
+    "label": "Create table \"courses\"",
+    "summary": "Creates table \"courses\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "courses"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"courses\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"courses\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"courses\"",
+        "sql": "CREATE TABLE \"public\".\"courses\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"created_by_id\" uuid NOT NULL,\n  \"deleted_at\" timestamptz,\n  \"description\" text,\n  \"id\" uuid NOT NULL,\n  \"level\" text DEFAULT 'BEGINNER' NOT NULL,\n  \"published_at\" timestamptz,\n  \"slug\" character varying(280) NOT NULL,\n  \"status\" text DEFAULT 'DRAFT' NOT NULL,\n  \"thumbnail_url\" text,\n  \"title\" text NOT NULL,\n  \"updated_at\" timestamptz DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"courses_level_check_85a47cbd\" CHECK (\"level\" IN ('BEGINNER', 'INTERMEDIATE', 'ADVANCED')),\n  CONSTRAINT \"courses_status_check_bc64f66b\" CHECK (\"status\" IN ('DRAFT', 'PUBLISHED', 'ARCHIVED'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"courses\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"courses\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.courses.courses_slug_key",
+    "label": "Add unique constraint on \"courses\" (slug)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "courses_slug_key",
+        "table": "courses"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"courses_slug_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "courses_slug_key",
+          "public",
+          "\"public\".\"courses\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"courses_slug_key\"",
+        "sql": "ALTER TABLE \"public\".\"courses\" ADD CONSTRAINT \"courses_slug_key\" UNIQUE (\"slug\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"courses_slug_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "courses_slug_key",
+          "public",
+          "\"public\".\"courses\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.courses.courses_created_at_idx_225d8c0f",
+    "label": "Create index \"courses_created_at_idx_225d8c0f\" on \"courses\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "courses_created_at_idx_225d8c0f",
+        "table": "courses"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"courses_created_at_idx_225d8c0f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"courses_created_at_idx_225d8c0f\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"courses_created_at_idx_225d8c0f\"",
+        "sql": "CREATE INDEX \"courses_created_at_idx_225d8c0f\" ON \"public\".\"courses\" (\"created_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"courses_created_at_idx_225d8c0f\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"courses_created_at_idx_225d8c0f\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.courses.courses_created_by_id_idx_2b1d9a03",
+    "label": "Create index \"courses_created_by_id_idx_2b1d9a03\" on \"courses\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "courses_created_by_id_idx_2b1d9a03",
+        "table": "courses"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"courses_created_by_id_idx_2b1d9a03\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"courses_created_by_id_idx_2b1d9a03\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"courses_created_by_id_idx_2b1d9a03\"",
+        "sql": "CREATE INDEX \"courses_created_by_id_idx_2b1d9a03\" ON \"public\".\"courses\" (\"created_by_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"courses_created_by_id_idx_2b1d9a03\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"courses_created_by_id_idx_2b1d9a03\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.courses.courses_status_deleted_at_idx_acd966eb",
+    "label": "Create index \"courses_status_deleted_at_idx_acd966eb\" on \"courses\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "courses_status_deleted_at_idx_acd966eb",
+        "table": "courses"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"courses_status_deleted_at_idx_acd966eb\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"courses_status_deleted_at_idx_acd966eb\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"courses_status_deleted_at_idx_acd966eb\"",
+        "sql": "CREATE INDEX \"courses_status_deleted_at_idx_acd966eb\" ON \"public\".\"courses\" (\"status\", \"deleted_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"courses_status_deleted_at_idx_acd966eb\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"courses_status_deleted_at_idx_acd966eb\""
+        ]
+      }
+    ]
+  }
+]

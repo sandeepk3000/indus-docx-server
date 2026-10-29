@@ -1,0 +1,18 @@
+export const CONSTRAINTS = {
+  USER: {
+    NAME_MIN_LENGTH: 2,
+    NAME_MAX_LENGTH: 100,
+    EMAIL_MAX_LENGTH: 254,
+  },
+
+  PAGINATION: {
+    DEFAULT_PAGE: 1,
+    DEFAULT_LIMIT: 10,
+    MAX_LIMIT: 100,
+  },
+
+  PASSWORD: {
+    MIN_LENGTH: 12,
+    MAX_LENGTH: 128,
+  },
+} as const;

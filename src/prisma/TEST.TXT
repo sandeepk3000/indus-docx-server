@@ -1,0 +1,4 @@
+read:courses	Courses dekhna
+create:courses	Course create karna
+update:courses	Course update karna
+delete:courses	Course delete karna

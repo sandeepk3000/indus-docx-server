@@ -1,0 +1,44 @@
+[
+  {
+    "id": "column.public.User.coverImage",
+    "label": "Add column \"coverImage\" to \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "coverImage",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"coverImage\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "coverImage"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"coverImage\"",
+        "sql": "ALTER TABLE \"public\".\"User\" ADD COLUMN \"coverImage\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"coverImage\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "coverImage"
+        ]
+      }
+    ]
+  }
+]
