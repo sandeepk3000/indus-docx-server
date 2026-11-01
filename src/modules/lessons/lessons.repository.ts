@@ -14,4 +14,7 @@ export const lessonsRepository = {
   create(data: CreateLessonData) {
     return Lessons.create(data);
   },
+  updateVideoUrl(lessonId: string, videoUrl: string) {
+    return Lessons.where({ id: lessonId }).update({ videoUrl: videoUrl });
+  },
 };

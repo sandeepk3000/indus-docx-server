@@ -1,13 +1,16 @@
 
-import express, { type Express } from "express";
+import express, { type Express, type NextFunction, type Request, type Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
+import "dotenv/config";
 import userRouter from "./modules/users/users.routes";
 import courseRouter from "./modules/courses/courses.routes"
 import { globalErrorHandler } from "./middlewares/error.middleware";
 import { notFoundHandler } from "./middlewares/not-found.middleware";
 import moduleRourer from "./modules/learningModules/modules.routes"
+import mediaRouter from "./modules/media/media.routes"
+import muxWebhookRoutes from "./webhooks/mux.webhook"
 const app: Express = express();
 
 // Security headers
@@ -20,7 +23,11 @@ app.use(
     credentials: true,
   })
 );
-
+app.use(
+  "/api/v1/webhooks/mux",
+  express.raw({ type: "application/json" }),
+  muxWebhookRoutes,
+);
 // Request body parsing
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser())
@@ -34,6 +41,7 @@ app.get("/health", (_req, res) => {
   });
 });
 
+
 // 404 handler
 
 
@@ -46,6 +54,8 @@ app.use("/api/v1/users",userRouter)
 app.use("/api/v1/courses",courseRouter)
 
 app.use("/api/v1/modules",moduleRourer)
+
+app.use("/api/v1/media",mediaRouter)
 
 app.use(notFoundHandler);
 app.use(globalErrorHandler);

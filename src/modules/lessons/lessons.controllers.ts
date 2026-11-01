@@ -100,7 +100,7 @@ export const createLesson = async (
             );
         }
 
-        const parsed = createLessonSchema.safeParse({ ...req.body,moduleId, id: uuidv4() });
+        const parsed = createLessonSchema.safeParse({ ...req.body, moduleId, id: uuidv4() });
 
         if (!parsed.success) {
             throw new ApiError(
@@ -121,6 +121,49 @@ export const createLesson = async (
                 true
             )
         )
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+export const updateLessonVideoUrl = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { lessonId } = req.params;
+        const { videoUrl } = req.body;
+
+        if (typeof lessonId !== "string") {
+            throw new ApiError(
+                HTTP_STATUS.BAD_REQUEST,
+                "Lesson ID is required"
+            );
+        }
+
+        if (typeof videoUrl !== "string" || !videoUrl.trim()) {
+            throw new ApiError(
+                HTTP_STATUS.BAD_REQUEST,
+                "Video URL is required"
+            );
+        }
+
+        const lesson = await lessonsService.updateLessonVideoUrl(
+            lessonId,
+            videoUrl.trim()
+        );
+        return res.status(HTTP_STATUS.OK).json(
+            new ApiResponse(
+                req,
+                res,
+                HTTP_STATUS.OK,
+                "Lesson video URL updated successfully",
+                lesson,
+                true
+            )
+        );
     } catch (error) {
         next(error);
     }

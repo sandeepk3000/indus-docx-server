@@ -20,9 +20,6 @@ export class UserRepository {
    findById(id: string) {
     return Users.first({ id });
   }
-  findBySubject(sub:string){
-    return Users.first({authSubject:sub})
-  }
   loginByEmailAndPassword({email,refreshToken}:LoginUserInput){
     return Users.where({email}).update({refreshToken:refreshToken})
   }

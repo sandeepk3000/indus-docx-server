@@ -135,7 +135,7 @@ export async function getCourseBySlug(
 
 export async function getCurriculumByCourseId(req:Request,res:Response,next:NextFunction){
    try {
-    const courseId = req.params.slug
+    const courseId = req.params.courseId
     if (typeof courseId !== "string") {
       return next(
         new ApiError(
